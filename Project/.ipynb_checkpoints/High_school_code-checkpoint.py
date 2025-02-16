@@ -2,17 +2,7 @@ import os
 import pandas as pd
 import requests
 ##############################################################################################
-def read_in_data_antagningsdel():
-    # Define the range of years and corresponding URLs
-    data_antagning_info = {
-        2020: "https://gymnasieantagningen.storsthlm.se/media/yiobheds/slutantagningsresultat-2020.xlsx",
-        2021: "https://gymnasieantagningen.storsthlm.se/media/pvob5j1l/slutantagningsresultat-2021.xlsx",
-        2022: "https://gymnasieantagningen.storsthlm.se/media/xhvap2io/slutantagning-2022.xlsx",
-        2023: "https://gymnasieantagningen.storsthlm.se/media/zksfvysz/slutantagningsresultat-2023.xlsx",
-        2024: "https://gymnasieantagningen.storsthlm.se/media/opnfe50w/slutantagningsresultat-2024.xlsx",
-    }
-    
-    download_dir = "antagningsstatistik"  # Directory to store downloaded files
+def read_in_data_antagningsdel(data_antagning_info, download_dir):
     
     # Download and read Excel files
     dataframes_antagning = []  # List to store DataFrames for each year
@@ -79,8 +69,20 @@ def filter_data(df_antagning, years, kommuner, program_keyword):
     return df_antagning
 ########################################################################################
 def data_processing():
+
+    # Define the range of years and corresponding URLs
+    data_antagning_info = {
+        2020: "https://gymnasieantagningen.storsthlm.se/media/yiobheds/slutantagningsresultat-2020.xlsx",
+        2021: "https://gymnasieantagningen.storsthlm.se/media/pvob5j1l/slutantagningsresultat-2021.xlsx",
+        2022: "https://gymnasieantagningen.storsthlm.se/media/xhvap2io/slutantagning-2022.xlsx",
+        2023: "https://gymnasieantagningen.storsthlm.se/media/zksfvysz/slutantagningsresultat-2023.xlsx",
+        2024: "https://gymnasieantagningen.storsthlm.se/media/opnfe50w/slutantagningsresultat-2024.xlsx",
+    }
+    
+    download_dir = "antagningsstatistik"  # Directory to store downloaded files
+    
     # Read in antagningsdel data
-    dataframe_antagning = read_in_data_antagningsdel()
+    dataframe_antagning = read_in_data_antagningsdel(data_antagning_info, download_dir)
     
     # Define parameters
     years = range(2020, 2025)  # Range of years to include in the filter
@@ -91,6 +93,6 @@ def data_processing():
     program_keyword = "Naturvetenskapsprogrammet"  # Keyword to filter specific programs
     
     # Apply the filter function
-    filtered_df_antagning = filter_data(df_antagning, years, kommuner, program_keyword)
+    filtered_df_antagning = filter_data(dataframe_antagning, years, kommuner, program_keyword)
     print(filtered_df_antagning)
     return filtered_df_antagning
