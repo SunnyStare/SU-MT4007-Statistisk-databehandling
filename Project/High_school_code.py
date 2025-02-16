@@ -55,9 +55,42 @@ def read_in_data_antagningsdel():
     else:
         print("No data downloaded.")
         df_antagning = pd.DataFrame()  # Create an empty DataFrame to avoid errors
-    print("Inside read_in_data_antagningsdel()")
     return df_antagning
+#######################################################################################
+def filter_data(df_antagning, years, kommuner, program_keyword):
+    # Filter rows where the year is in the specified range
+    df_antagning = df_antagning[df_antagning["Year"].isin(years)]
 
+    # Filter rows where the municipality is in the specified list
+    df_antagning = df_antagning[df_antagning["Kommun"].isin(kommuner)]
+
+    # Filter rows where the Studievag column contains the specified keyword
+    df_antagning = df_antagning[df_antagning["Studievag"].str.contains(program_keyword, na=False)]
+
+    # Exclude rows where Studievag contains specific keywords (strict matching)
+    excluded_keywords = ["estetiska", "samhälle", "Hållbar utveckling", "Idrott", "Musik", "Dans", "Miljö", "Innovation"]
+    pattern = r'\b(?:' + '|'.join(excluded_keywords) + r')\b'  # Match whole words only
+    df_antagning = df_antagning[~df_antagning["Studievag"].str.contains(pattern, case=False, na=False)]
+
+    # Drop unwanted columns
+    columns_to_drop = ["\u00c5r", "Organistionsform", "StudieVagKod", "\u00c5rtal", "Unnamed: 12"]
+    df_antagning = df_antagning.drop(columns=[col for col in columns_to_drop if col in df_antagning.columns], errors='ignore')
+
+    return df_antagning
+########################################################################################
 def data_processing():
+    # Read in antagningsdel data
     dataframe_antagning = read_in_data_antagningsdel()
-    return dataframe_antagning
+    
+    # Define parameters
+    years = range(2020, 2025)  # Range of years to include in the filter
+    kommuner = [  # List of municipalities to include in the filter
+        "Botkyrka", "Danderyd", "Haninge", "Huddinge", "Järfälla", "Lidingö", "Nacka", "Sollentuna", "Solna", 
+        "Stockholm", "Sundbyberg", "Södertälje", "Tyresö", "Täby", "Upplands Väsby", "Vallentuna", "Vaxholm", "Värmdö"
+    ]
+    program_keyword = "Naturvetenskapsprogrammet"  # Keyword to filter specific programs
+    
+    # Apply the filter function
+    filtered_df_antagning = filter_data(df_antagning, years, kommuner, program_keyword)
+    print(filtered_df_antagning)
+    return filtered_df_antagning
