@@ -55,8 +55,9 @@ def read_in_data_antagningsdel():
     else:
         print("No data downloaded.")
         df_antagning = pd.DataFrame()  # Create an empty DataFrame to avoid errors
+    print("Inside read_in_data_antagningsdel()")
     return df_antagning
 
 def data_processing():
     dataframe_antagning = read_in_data_antagningsdel()
-    print(dataframe_antagning)
+    return dataframe_antagning
