@@ -94,5 +94,5 @@ def data_processing():
     
     # Apply the filter function
     filtered_df_antagning = filter_data(dataframe_antagning, years, kommuner, program_keyword)
-    print(filtered_df_antagning)
+    # print(filtered_df_antagning)
     return filtered_df_antagning
