@@ -68,6 +68,41 @@ def filter_data(df_antagning, years, kommuner, program_keyword):
 
     return df_antagning
 ########################################################################################
+def calculate_the_averages(filtered_df_antagning):  
+    # Calculate the 5-year median and antagningsgrans averages for each school, program, and municipality 
+    # and sort data according to the average of median
+    
+    if not filtered_df_antagning.empty:
+        # Ensure Median and Antagningsgrans columns are numeric
+        filtered_df_antagning["Median"] = pd.to_numeric(filtered_df_antagning["Median"], errors='coerce')
+        filtered_df_antagning["Antagningsgrans"] = pd.to_numeric(filtered_df_antagning["Antagningsgrans"], errors='coerce')
+    
+        # Calculate the averages
+        median_avg_df = (
+            filtered_df_antagning.groupby(["Kommun", "Studievag", "Skola"])
+            .agg({"Median": "mean", "Antagningsgrans": "mean"})  # Automatically ignores NaN values
+            .reset_index()
+        )
+    
+        # Filter out rows where the 5-year median average is below 300
+        median_avg_df = median_avg_df[median_avg_df["Median"] >= 300]
+    
+        # Add a column for the ratio of Antagningsgrans average to Median average
+        median_avg_df["Ratio"] = median_avg_df["Antagningsgrans"] / median_avg_df["Median"]
+    
+        # Sort results by the ratio column
+        median_avg_df = median_avg_df.sort_values(by="Ratio", ascending=True)
+    
+        # Print the number of rows in the resulting DataFrame
+        print(f"Total rows in median_avg_df: {len(median_avg_df)}")
+    
+        # Print the 5-year averages
+        pd.set_option("display.max_colwidth", None)  # Ensure full display of Studievag content
+        print("5-Year Averages by Municipality, Program, and School (Sorted by Ratio):")
+        print(median_avg_df)
+    else:
+        print("Filtered dataset is empty.")
+########################################################################################
 def data_processing():
 
     # Define the range of years and corresponding URLs
@@ -95,4 +130,7 @@ def data_processing():
     # Apply the filter function
     filtered_df_antagning = filter_data(dataframe_antagning, years, kommuner, program_keyword)
     # print(filtered_df_antagning)
-    return filtered_df_antagning
+
+    median_avg_df = calculate_the_averages(filtered_df_antagning)
+    
+    return median_avg_df
