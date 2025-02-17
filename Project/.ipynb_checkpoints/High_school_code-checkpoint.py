@@ -96,13 +96,57 @@ def calculate_the_averages(filtered_df_antagning):
         # Print the number of rows in the resulting DataFrame
         print(f"Total rows in median_avg_df: {len(median_avg_df)}")
     
-        # Print the 5-year averages
+        # return df of the 5-year averages
         pd.set_option("display.max_colwidth", None)  # Ensure full display of Studievag content
-        print("5-Year Averages by Municipality, Program, and School (Sorted by Ratio):")
-        print(median_avg_df)
+        # print("5-Year Averages by Municipality, Program, and School (Sorted by Ratio):")
+        return median_avg_df
     else:
         print("Filtered dataset is empty.")
 ########################################################################################
+def name_trans(median_avg_df): 
+    # Manually define a name mapping table
+    
+    # df_name_trans = pd.DataFrame({
+    #     "Skola_antag": median_avg_df["Skola"],
+    #     "Kommun": median_avg_df["Kommun"],
+    #     "Skola_avgang": ["Danderyds Gymnasium", "Viktor Rydberg gy. Djursholm", "Tullinge gymnasium", "Tullinge gymnasium", 
+    #                      "Viktor Rydberg gy. Djursholm", "Amerikanska Gymnasiet Stockholm", "Rudbeck Naturvetenskapsprogrammet","Viktor Rydberg gy. Sundbyberg", 
+    #                      "Stockholms Idrottsgymnasium", "Solna Gymnasium", "Nacka Gymnasium", "Tibble Gymnasium Campus Täby", 
+    #                      "Åva gymnasium", "Tumba gymnasium", "Blackebergs gymnasium 85152591", "Enskilda gymnasiet, gy", 
+    #                      "Sjölins Gymnasium Nacka", "Campus Manilla Gymnasium", "JENSEN Gymnasium Gamla stan", "Värmdö gymnasium", 
+    #                     "KLARA Teoretiska Gymnasium Stockholm Norra", "nan", "Nacka Gymnasium", "Anna Whitlocks gymnasium 54040574", 
+    #                     "JENSEN Gymnasium Gamla stan", "Sjölins Gymnasium Södermalm", "nan", "Nacka Gymnasium", 
+    #                     "Kungsh gy/Sthlms Musikgy 74812809", "Östra gymnasiet", "Kungsh gy/Sthlms Musikgy 74812809", "Anna Whitlocks gymnasium 54040574", 
+    #                     "P A Fogelströms gymnasium 24650116", "Viktor Rydberg gy. Odenplan", "Sjölins Gymnasium Vasastan", "Östra Reals gymnasium 99755443", 
+    #                     "Södra Latins gymnasium 89370947", "JENSEN Gymnasium Gamla stan", "Norra Real 82964090", "Täby Enskilda gymnasium", 
+    #                    "Norra Real 82964090", "Viktor Rydberg gy. Odenplan", "Kungsh gy/Sthlms Musikgy 74812809", "Norra Real 82964090"] 
+    # })
+    df_name_trans = pd.DataFrame({
+        "Skola_antag": median_avg_df["Skola"],
+        "Kommun": median_avg_df["Kommun"],
+        "Skola_avgang": pd.Series([
+            "Danderyds Gymnasium", "Viktor Rydberg gy. Djursholm", "Tullinge gymnasium", 
+            "Tullinge gymnasium", "Viktor Rydberg gy. Djursholm", "Amerikanska Gymnasiet Stockholm", 
+            "Rudbeck Naturvetenskapsprogrammet", "Viktor Rydberg gy. Sundbyberg", 
+            "Stockholms Idrottsgymnasium", "Solna Gymnasium", "Nacka Gymnasium", 
+            "Tibble Gymnasium Campus Täby", "Åva gymnasium", "Tumba gymnasium", 
+            "Blackebergs gymnasium 85152591", "Enskilda gymnasiet, gy", "Sjölins Gymnasium Nacka", 
+            "Campus Manilla Gymnasium", "JENSEN Gymnasium Gamla stan", "Värmdö gymnasium", 
+            "KLARA Teoretiska Gymnasium Stockholm Norra", "nan", "Nacka Gymnasium", 
+            "Anna Whitlocks gymnasium 54040574", "JENSEN Gymnasium Gamla stan", 
+            "Sjölins Gymnasium Södermalm", "nan", "Nacka Gymnasium", 
+            "Kungsh gy/Sthlms Musikgy 74812809", "Östra gymnasiet", "Kungsh gy/Sthlms Musikgy 74812809", 
+            "Anna Whitlocks gymnasium 54040574", "P A Fogelströms gymnasium 24650116", 
+            "Viktor Rydberg gy. Odenplan", "Sjölins Gymnasium Vasastan", "Östra Reals gymnasium 99755443", 
+            "Södra Latins gymnasium 89370947", "JENSEN Gymnasium Gamla stan", "Norra Real 82964090", 
+            "Täby Enskilda gymnasium", "Norra Real 82964090", "Viktor Rydberg gy. Odenplan", 
+            "Kungsh gy/Sthlms Musikgy 74812809", "Norra Real 82964090"
+        ], index=median_avg_df.index)  # Ensure index consistency
+    })
+    return df_name_trans
+#####################################################################################################
+
+
 def data_processing():
 
     # Define the range of years and corresponding URLs
@@ -130,7 +174,11 @@ def data_processing():
     # Apply the filter function
     filtered_df_antagning = filter_data(dataframe_antagning, years, kommuner, program_keyword)
     # print(filtered_df_antagning)
-
-    median_avg_df = calculate_the_averages(filtered_df_antagning)
     
+    # Calculate the 5-year median and antagningsgrans averages for each school, program, and municipality 
+    # and sort data according to the average of median
+    median_avg_df = calculate_the_averages(filtered_df_antagning)
+
+     # Manually define a name mapping table
+    df_name_trans = name_trans(median_avg_df)
     return median_avg_df
