@@ -215,8 +215,8 @@ def data_processing():
        
     # Calculate the 5-year median and antagningsgrans averages for each school, program, and municipality 
     # and sort data according to the average of median
-    median_avg__listofdict = calculate_the_averages(filtered_antagning_listofdict)
+    median_avg_listofdict = calculate_the_averages(filtered_antagning_listofdict)
 
      # Manually define a name mapping table
     df_name_trans = name_trans(median_avg_df)
-    return median_avg_df
+    return median_avg_listofdict
