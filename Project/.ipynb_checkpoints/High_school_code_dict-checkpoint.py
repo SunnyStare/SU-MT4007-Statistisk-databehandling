@@ -2,6 +2,57 @@ import os
 import requests
 import pandas as pd
 from collections import defaultdict
+from io import BytesIO
+
+###############################################################################################
+class DataSourceAndParameters:
+    """
+    A class that stores URLs and parameters for data sources and filtering criteria.
+    """
+
+    # URLs for final admission statistics
+    antagning_info = {
+        2020: "https://gymnasieantagningen.storsthlm.se/media/yiobheds/slutantagningsresultat-2020.xlsx",
+        2021: "https://gymnasieantagningen.storsthlm.se/media/pvob5j1l/slutantagningsresultat-2021.xlsx",
+        2022: "https://gymnasieantagningen.storsthlm.se/media/xhvap2io/slutantagning-2022.xlsx",
+        2023: "https://gymnasieantagningen.storsthlm.se/media/zksfvysz/slutantagningsresultat-2023.xlsx",
+        2024: "https://gymnasieantagningen.storsthlm.se/media/opnfe50w/slutantagningsresultat-2024.xlsx",
+    }
+
+    # Directory for storing downloaded files
+    antagning_dir = "antagningsstatistik"
+
+    # Filtering parameters
+    years = list(range(2020, 2025))  # Ensure it's a list, not a range object
+    kommuner = [
+        "Botkyrka", "Danderyd", "Haninge", "Huddinge", "Järfälla", "Lidingö", "Nacka", "Sollentuna", "Solna",
+        "Stockholm", "Sundbyberg", "Södertälje", "Tyresö", "Täby", "Upplands Väsby", "Vallentuna", "Vaxholm", "Värmdö"
+    ]
+    program_keyword = "Naturvetenskapsprogrammet"
+
+    # Excluded keywords to filter out unwanted programs
+    excluded_keywords = ["estetiska", "samhälle", "Hållbar utveckling", "Idrott", "Musik", "Dans", "Miljö", "Innovation"]
+
+    # URLs for graduation statistics
+    avgang_info = {
+        2020: "https://siris.skolverket.se/siris/reports/export_api/runexport/?pFormat=xls&pExportID=88&pAr=2020&pLan=&pKommun=&pHmantyp=&pUttag=null&pToken=29A296189217EE63E06311BA650A8DC5&pFlikar=1&pVerkform=21",
+        2021: "https://siris.skolverket.se/siris/reports/export_api/runexport/?pFormat=xls&pExportID=88&pAr=2021&pLan=&pKommun=&pHmantyp=&pUttag=null&pToken=29A296189217EE63E06311BA650A8DC5&pFlikar=1&pVerkform=21",
+        2022: "https://siris.skolverket.se/siris/reports/export_api/runexport/?pFormat=xls&pExportID=88&pAr=2022&pLan=&pKommun=&pHmantyp=&pUttag=null&pToken=29A296189217EE63E06311BA650A8DC5&pFlikar=1&pVerkform=21",
+        2023: "https://siris.skolverket.se/siris/reports/export_api/runexport/?pFormat=xls&pExportID=88&pAr=2023&pLan=&pKommun=&pHmantyp=&pUttag=null&pToken=29A296189217EE63E06311BA650A8DC5&pFlikar=1&pVerkform=21",
+        2024: "https://siris.skolverket.se/siris/reports/export_api/runexport/?pFormat=xls&pExportID=88&pAr=2024&pLan=&pKommun=&pHmantyp=&pUttag=null&pToken=29A296189217EE63E06311BA650A8DC5&pFlikar=1&pVerkform=21",
+    }
+
+    @classmethod
+    def get_avgang_parameters(cls):
+        """
+        Returns relevant parameters for the graduation dataset.
+        """
+        return {
+            "sheet_name": "Naturvetenskapsprogrammet",
+            "column_name": "GBP för elever med examen"
+        }
+
+data = DataSourceAndParameters()
 
 ##############################################################################################
 
@@ -43,7 +94,7 @@ def read_in_data_antagningsdel(data_antagning_info, download_dir):
     
 #######################################################################################
 
-def filter_data(data_list, years, municipalities, program_keyword):
+def filter_data(data_list, years, municipalities, program_keyword, excluded_keywords):
     """
     Filters the dataset based on the specified criteria.
 
@@ -52,7 +103,7 @@ def filter_data(data_list, years, municipalities, program_keyword):
     - years (list of int): List of years to include.
     - municipalities (list of str): List of municipalities to include.
     - program_keyword (str): Keyword to search for in the "Studievag" field.
-
+    - excluded_keywords: Keyword to avoid for in the "Studievag" field.
     Returns:
     - list of dict: Filtered dataset.
     """
@@ -65,8 +116,6 @@ def filter_data(data_list, years, municipalities, program_keyword):
         and program_keyword.lower() in str(row.get("Studievag", "")).lower()
     ]
 
-    # Exclude rows where "Studievag" contains specific unwanted keywords
-    excluded_keywords = ["estetiska", "samhälle", "Hållbar utveckling", "Idrott", "Musik", "Dans", "Miljö", "Innovation"]
     filtered_data = [
         row for row in filtered_data
         if not any(keyword.lower() in str(row.get("Studievag", "")).lower() for keyword in excluded_keywords)
@@ -142,81 +191,99 @@ def calculate_the_averages(filtered_data):
     return result_list
 
 ########################################################################################
-def name_trans(median_avg_df): 
-    # Manually define a name mapping table
+def name_trans():
+    """
+    Returns a dictionary mapping original school names to standardized names.
     
-    # df_name_trans = pd.DataFrame({
-    #     "Skola_antag": median_avg_df["Skola"],
-    #     "Kommun": median_avg_df["Kommun"],
-    #     "Skola_avgang": ["Danderyds Gymnasium", "Viktor Rydberg gy. Djursholm", "Tullinge gymnasium", "Tullinge gymnasium", 
-    #                      "Viktor Rydberg gy. Djursholm", "Amerikanska Gymnasiet Stockholm", "Rudbeck Naturvetenskapsprogrammet","Viktor Rydberg gy. Sundbyberg", 
-    #                      "Stockholms Idrottsgymnasium", "Solna Gymnasium", "Nacka Gymnasium", "Tibble Gymnasium Campus Täby", 
-    #                      "Åva gymnasium", "Tumba gymnasium", "Blackebergs gymnasium 85152591", "Enskilda gymnasiet, gy", 
-    #                      "Sjölins Gymnasium Nacka", "Campus Manilla Gymnasium", "JENSEN Gymnasium Gamla stan", "Värmdö gymnasium", 
-    #                     "KLARA Teoretiska Gymnasium Stockholm Norra", "nan", "Nacka Gymnasium", "Anna Whitlocks gymnasium 54040574", 
-    #                     "JENSEN Gymnasium Gamla stan", "Sjölins Gymnasium Södermalm", "nan", "Nacka Gymnasium", 
-    #                     "Kungsh gy/Sthlms Musikgy 74812809", "Östra gymnasiet", "Kungsh gy/Sthlms Musikgy 74812809", "Anna Whitlocks gymnasium 54040574", 
-    #                     "P A Fogelströms gymnasium 24650116", "Viktor Rydberg gy. Odenplan", "Sjölins Gymnasium Vasastan", "Östra Reals gymnasium 99755443", 
-    #                     "Södra Latins gymnasium 89370947", "JENSEN Gymnasium Gamla stan", "Norra Real 82964090", "Täby Enskilda gymnasium", 
-    #                    "Norra Real 82964090", "Viktor Rydberg gy. Odenplan", "Kungsh gy/Sthlms Musikgy 74812809", "Norra Real 82964090"] 
-    # })
-    df_name_trans = pd.DataFrame({
-        "Skola_antag": median_avg_df["Skola"],
-        "Kommun": median_avg_df["Kommun"],
-        "Skola_avgang": pd.Series([
-            "Danderyds Gymnasium", "Viktor Rydberg gy. Djursholm", "Tullinge gymnasium", 
-            "Tullinge gymnasium", "Viktor Rydberg gy. Djursholm", "Amerikanska Gymnasiet Stockholm", 
-            "Rudbeck Naturvetenskapsprogrammet", "Viktor Rydberg gy. Sundbyberg", 
-            "Stockholms Idrottsgymnasium", "Solna Gymnasium", "Nacka Gymnasium", 
-            "Tibble Gymnasium Campus Täby", "Åva gymnasium", "Tumba gymnasium", 
-            "Blackebergs gymnasium 85152591", "Enskilda gymnasiet, gy", "Sjölins Gymnasium Nacka", 
-            "Campus Manilla Gymnasium", "JENSEN Gymnasium Gamla stan", "Värmdö gymnasium", 
-            "KLARA Teoretiska Gymnasium Stockholm Norra", "nan", "Nacka Gymnasium", 
-            "Anna Whitlocks gymnasium 54040574", "JENSEN Gymnasium Gamla stan", 
-            "Sjölins Gymnasium Södermalm", "nan", "Nacka Gymnasium", 
-            "Kungsh gy/Sthlms Musikgy 74812809", "Östra gymnasiet", "Kungsh gy/Sthlms Musikgy 74812809", 
-            "Anna Whitlocks gymnasium 54040574", "P A Fogelströms gymnasium 24650116", 
-            "Viktor Rydberg gy. Odenplan", "Sjölins Gymnasium Vasastan", "Östra Reals gymnasium 99755443", 
-            "Södra Latins gymnasium 89370947", "JENSEN Gymnasium Gamla stan", "Norra Real 82964090", 
-            "Täby Enskilda gymnasium", "Norra Real 82964090", "Viktor Rydberg gy. Odenplan", 
-            "Kungsh gy/Sthlms Musikgy 74812809", "Norra Real 82964090"
-        ], index=median_avg_df.index)  # Ensure index consistency
-    })
-    return df_name_trans
+    Returns:
+    - dict: {original_name: standardized_name}
+    """
+    school_name_mapping = {
+        "Danderyds Gymnasium": "Danderyds Gymnasium",
+        "Viktor Rydberg gy. Djursholm": "Viktor Rydberg gy. Djursholm",
+        "Tullinge gymnasium": "Tullinge gymnasium",
+        "Amerikanska Gymnasiet Stockholm": "Amerikanska Gymnasiet Stockholm",
+        "Rudbeck Naturvetenskapsprogrammet": "Rudbeck Naturvetenskapsprogrammet",
+        "Viktor Rydberg gy. Sundbyberg": "Viktor Rydberg gy. Sundbyberg",
+        "Stockholms Idrottsgymnasium": "Stockholms Idrottsgymnasium",
+        "Solna Gymnasium": "Solna Gymnasium",
+        "Nacka Gymnasium": "Nacka Gymnasium",
+        "Tibble Gymnasium Campus Täby": "Tibble Gymnasium Campus Täby",
+        "Åva gymnasium": "Åva gymnasium",
+        "Tumba gymnasium": "Tumba gymnasium",
+        "Blackebergs gymnasium": "Blackebergs gymnasium 85152591",
+        "Enskilda gymnasiet": "Enskilda gymnasiet, gy",
+        "Sjölins Gymnasium Nacka": "Sjölins Gymnasium Nacka",
+        "Campus Manilla Gymnasium": "Campus Manilla Gymnasium",
+        "JENSEN Gymnasium Gamla stan": "JENSEN Gymnasium Gamla stan",
+        "Värmdö gymnasium": "Värmdö gymnasium",
+        "KLARA Teoretiska Gymnasium Stockholm Norra": "KLARA Teoretiska Gymnasium Stockholm Norra",
+        "Anna Whitlocks gymnasium": "Anna Whitlocks gymnasium 54040574",
+        "Sjölins Gymnasium Södermalm": "Sjölins Gymnasium Södermalm",
+        "Kungsholmens gymnasium / Sthlms Musikgymnasium": "Kungsh gy/Sthlms Musikgy 74812809",
+        "Östra gymnasiet": "Östra gymnasiet",
+        "P A Fogelströms gymnasium": "P A Fogelströms gymnasium 24650116",
+        "Viktor Rydberg gy. Odenplan": "Viktor Rydberg gy. Odenplan",
+        "Sjölins Gymnasium Vasastan": "Sjölins Gymnasium Vasastan",
+        "Östra Reals gymnasium": "Östra Reals gymnasium 99755443",
+        "Södra Latins gymnasium": "Södra Latins gymnasium 89370947",
+        "Norra Real": "Norra Real 82964090",
+        "Täby Enskilda gymnasium": "Täby Enskilda gymnasium",
+    }
+
+    return school_name_mapping
+
 #####################################################################################################
 
 
-def data_processing():
 
-    # Define the range of years and corresponding URLs
-    data_antagning_info = {
-        2020: "https://gymnasieantagningen.storsthlm.se/media/yiobheds/slutantagningsresultat-2020.xlsx",
-        2021: "https://gymnasieantagningen.storsthlm.se/media/pvob5j1l/slutantagningsresultat-2021.xlsx",
-        2022: "https://gymnasieantagningen.storsthlm.se/media/xhvap2io/slutantagning-2022.xlsx",
-        2023: "https://gymnasieantagningen.storsthlm.se/media/zksfvysz/slutantagningsresultat-2023.xlsx",
-        2024: "https://gymnasieantagningen.storsthlm.se/media/opnfe50w/slutantagningsresultat-2024.xlsx",
-    }
+#####################################################################################################
+
+def data_processing(data_source):
+    """
+    Processes the admission data by:
+    1. Reading the raw data
+    2. Filtering based on given parameters
+    3. Calculating median and admission score averages
+    4.
+    5.
+    6.
+
+    Parameters:
+        data_source (DataSourceAndParameters): Class containing URLs and filtering parameters.
+
+    Returns:
+        list[dict]: Processed list of dictionaries with calculated averages and GBP.
+    """
     
-    download_dir = "antagningsstatistik"  # Directory to store downloaded files
+    # Read in admission data
+    antagning_listofdict = read_in_data_antagningsdel(data_source.antagning_info, data_source.antagning_dir)
     
-    # Read in antagningsdel data
-    antagning_listofdict = read_in_data_antagningsdel(data_antagning_info, download_dir)
+    # Apply filtering based on class parameters
+    filtered_antagning_listofdict = filter_data(
+        antagning_listofdict, 
+        data_source.years, 
+        data_source.kommuner, 
+        data_source.program_keyword, 
+        data_source.excluded_keywords
+    )
     
-    # Define parameters
-    years = range(2020, 2025)  # Range of years to include in the filter
-    kommuner = [  # List of municipalities to include in the filter
-        "Botkyrka", "Danderyd", "Haninge", "Huddinge", "Järfälla", "Lidingö", "Nacka", "Sollentuna", "Solna", 
-        "Stockholm", "Sundbyberg", "Södertälje", "Tyresö", "Täby", "Upplands Väsby", "Vallentuna", "Vaxholm", "Värmdö"
-    ]
-    program_keyword = "Naturvetenskapsprogrammet"  # Keyword to filter specific programs
-    
-    # Apply the filter function
-    filtered_antagning_listofdict = filter_data(antagning_listofdict, years, kommuner, program_keyword)
-       
-    # Calculate the 5-year median and antagningsgrans averages for each school, program, and municipality 
-    # and sort data according to the average of median
+    # Calculate the 5-year median and admission averages
     median_avg_listofdict = calculate_the_averages(filtered_antagning_listofdict)
 
-     # Manually define a name mapping table
-    df_name_trans = name_trans(median_avg_df)
+    # Manually define a name mapping table
+    name_trans_listofdict = name_trans(median_avg_listofdict)
+    
     return median_avg_listofdict
+
+   
+
+    
+    # Read in GBP för elever med examen for the relevant schools from 2020 to 2024
+
+
+
+
+
+    
+   
