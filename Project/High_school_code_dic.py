@@ -380,7 +380,7 @@ def data_processing():
     name_trans_listofdict = name_trans(median_avg_listofdict)
 
     # Read in GBP för elever med examen for the relevant schools from 2020 to 2024
-    gbp_listofdict = process_gbp_data(
+    #gbp_listofdict = process_gbp_data(
         avgang_info = data.avgang_info,  # Pass avgang_info from the class instance
         sheet_name = data.sheet_name,    # Pass sheet_name from the class instance
         column_name = data.column_name,  # Pass column_name from the class instance
@@ -388,9 +388,9 @@ def data_processing():
     )
 
     # Calculate the average GBP för elever med examen for the relevant schools from 2020 to 2024
-    avg_gbp_listofdict = calculate_avg_gbp(gbp_listofdict)
+    # avg_gbp_listofdict = calculate_avg_gbp(gbp_listofdict)
     
-    return avg_gbp_listofdict
+    return median_avg_listofdict
 
    
 
