@@ -350,15 +350,12 @@ def data_processing():
     1. Reading the raw data
     2. Filtering based on given parameters
     3. Calculating median and admission score averages
-    4.
-    5.
-    6.
-
+   
     Parameters:
         data_source (DataSourceAndParameters): Class containing URLs and filtering parameters.
 
     Returns:
-        list[dict]: Processed list of dictionaries with calculated averages and GBP.
+        list[dict]: Processed list of dictionaries with calculated averages.
     """
     
     # Read in admission data
@@ -381,11 +378,11 @@ def data_processing():
 
     # Read in GBP för elever med examen for the relevant schools from 2020 to 2024
     #gbp_listofdict = process_gbp_data(
-        avgang_info = data.avgang_info,  # Pass avgang_info from the class instance
-        sheet_name = data.sheet_name,    # Pass sheet_name from the class instance
-        column_name = data.column_name,  # Pass column_name from the class instance
-        filter_schools = name_trans(median_avg_listofdict)  # Filter schools with name mapping
-    )
+     #   avgang_info = data.avgang_info,  # Pass avgang_info from the class instance
+     #   sheet_name = data.sheet_name,    # Pass sheet_name from the class instance
+     #   column_name = data.column_name,  # Pass column_name from the class instance
+     #   filter_schools = name_trans(median_avg_listofdict)  # Filter schools with name mapping
+    #)
 
     # Calculate the average GBP för elever med examen for the relevant schools from 2020 to 2024
     # avg_gbp_listofdict = calculate_avg_gbp(gbp_listofdict)
