@@ -191,45 +191,34 @@ def calculate_the_averages(filtered_data):
     return result_list
 
 ########################################################################################
-def name_trans():
+
+def name_trans(median_avg_listofdict):
     """
-    Returns a dictionary mapping original school names to standardized names.
-    
+    Creates a dictionary mapping original school names from median_avg_listofdict to standardized names.
+
+    Parameters:
+    - median_avg_listofdict: List of dictionaries containing school data with non-standardized names.
+
     Returns:
     - dict: {original_name: standardized_name}
     """
-    school_name_mapping = {
-        "Danderyds Gymnasium": "Danderyds Gymnasium",
-        "Viktor Rydberg gy. Djursholm": "Viktor Rydberg gy. Djursholm",
-        "Tullinge gymnasium": "Tullinge gymnasium",
-        "Amerikanska Gymnasiet Stockholm": "Amerikanska Gymnasiet Stockholm",
-        "Rudbeck Naturvetenskapsprogrammet": "Rudbeck Naturvetenskapsprogrammet",
-        "Viktor Rydberg gy. Sundbyberg": "Viktor Rydberg gy. Sundbyberg",
-        "Stockholms Idrottsgymnasium": "Stockholms Idrottsgymnasium",
-        "Solna Gymnasium": "Solna Gymnasium",
-        "Nacka Gymnasium": "Nacka Gymnasium",
-        "Tibble Gymnasium Campus Täby": "Tibble Gymnasium Campus Täby",
-        "Åva gymnasium": "Åva gymnasium",
-        "Tumba gymnasium": "Tumba gymnasium",
+    # Extract all unique school names from the dataset
+    original_schools = {entry["Skola"] for entry in median_avg_listofdict}
+
+    # Predefined mappings for specific schools that require renaming
+    predefined_mapping = {
         "Blackebergs gymnasium": "Blackebergs gymnasium 85152591",
         "Enskilda gymnasiet": "Enskilda gymnasiet, gy",
-        "Sjölins Gymnasium Nacka": "Sjölins Gymnasium Nacka",
-        "Campus Manilla Gymnasium": "Campus Manilla Gymnasium",
-        "JENSEN Gymnasium Gamla stan": "JENSEN Gymnasium Gamla stan",
-        "Värmdö gymnasium": "Värmdö gymnasium",
-        "KLARA Teoretiska Gymnasium Stockholm Norra": "KLARA Teoretiska Gymnasium Stockholm Norra",
         "Anna Whitlocks gymnasium": "Anna Whitlocks gymnasium 54040574",
-        "Sjölins Gymnasium Södermalm": "Sjölins Gymnasium Södermalm",
         "Kungsholmens gymnasium / Sthlms Musikgymnasium": "Kungsh gy/Sthlms Musikgy 74812809",
-        "Östra gymnasiet": "Östra gymnasiet",
         "P A Fogelströms gymnasium": "P A Fogelströms gymnasium 24650116",
-        "Viktor Rydberg gy. Odenplan": "Viktor Rydberg gy. Odenplan",
-        "Sjölins Gymnasium Vasastan": "Sjölins Gymnasium Vasastan",
         "Östra Reals gymnasium": "Östra Reals gymnasium 99755443",
         "Södra Latins gymnasium": "Södra Latins gymnasium 89370947",
         "Norra Real": "Norra Real 82964090",
-        "Täby Enskilda gymnasium": "Täby Enskilda gymnasium",
     }
+
+    # Generate the mapping dynamically, keeping the original name if not in predefined_mapping
+    school_name_mapping = {school: predefined_mapping.get(school, school) for school in original_schools}
 
     return school_name_mapping
 
