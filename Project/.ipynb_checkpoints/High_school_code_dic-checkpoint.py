@@ -279,44 +279,43 @@ def download_and_extract_filtered_data(data_source):
 
 def process_gbp_data(avgang_info, sheet_name, column_name, filter_schools):
     """
-    Process and extract GBP data for multiple years.
+    Process the GBP data from multiple years and return a list of dictionaries with relevant information.
 
     Parameters:
-    - avgang_info: Dictionary mapping years to URLs.
+    - avgang_info: Dictionary containing the URLs for each year.
     - sheet_name: The name of the sheet to extract data from.
-    - column_name: The column containing GBP values.
-    - filter_schools: A list of school names used for filtering.
+    - column_name: The name of the column to extract.
+    - filter_schools: List of school names to filter the data by.
 
     Returns:
-    - list[dict]: A list of dictionaries containing the filtered GBP data.
+    - List of dictionaries with the filtered and processed data for each year.
     """
-    gbp_data_list = []  
+    gbp_listofdict = []
 
     for year, url in avgang_info.items():
         try:
-            print(f"Processing data for year {year}...")
-
-            
-            filtered_data = download_and_extract_filtered_data(
+            # Use the download function to extract the filtered data
+            filtered_df = download_and_extract_filtered_data(
                 url=url,
                 sheet_name=sheet_name,
                 column_name=column_name,
-                filter_schools=filter_schools,
-                header_row=8
+                filter_schools=filter_schools
             )
 
-            if filtered_data:
-               
-                for entry in filtered_data:
-                    entry["Year"] = year 
-                gbp_data_list.extend(filtered_data)  
-            else:
-                print(f"No matching data found for year {year}.")
+            if filtered_df is not None and not filtered_df.empty:
+                # Add the year column
+                filtered_df['Year'] = year
+                
+                # Convert the DataFrame to a list of dictionaries
+                year_listofdict = filtered_df.to_dict(orient='records')
 
+                # Append to the result list
+                gbp_listofdict.extend(year_listofdict)
+        
         except Exception as e:
             print(f"Error processing data for year {year}: {e}")
 
-    return gbp_data_list  
+    return gbp_listofdict
 
 ##################################################################################################
 
@@ -384,10 +383,10 @@ def data_processing():
 
     # Read in GBP för elever med examen for the relevant schools from 2020 to 2024
     gbp_listofdict = process_gbp_data(
-        url_dict = data.avgang_info,        # Call the avgang_info from the class instance
-        sheet_name = data.sheet_name,       # Call the sheet_name from the class instance
-        column_name = data.column_name,     # Call the column_name from the class instance
-        filter_schools = name_trans(median_avg_listofdict)  # Filter schools with the name mapping
+        avgang_info = data.avgang_info,  # Pass avgang_info from the class instance
+        sheet_name = data.sheet_name,    # Pass sheet_name from the class instance
+        column_name = data.column_name,  # Pass column_name from the class instance
+        filter_schools = name_trans(median_avg_listofdict)  # Filter schools with name mapping
     )
 
     # Calculate the average GBP för elever med examen for the relevant schools from 2020 to 2024
