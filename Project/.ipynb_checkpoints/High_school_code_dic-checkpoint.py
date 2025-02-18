@@ -216,23 +216,21 @@ def name_trans(median_avg_listofdict):
 
 #####################################################################################################
 
-def download_and_extract_filtered_data(data_source):
-    
+def download_and_extract_filtered_data(url, sheet_name, column_name, filter_schools, header_row=8):
     """
-    Download the Excel file and extract specific column data that meets the filter criteria.
+    Download and process the data for specific schools and years.
 
     Parameters:
-    - data_source: An instance of the DataSourceAndParameters class.
+    - url: The download link for the Excel file.
+    - sheet_name: The name of the sheet to extract data from.
+    - column_name: The name of the column to extract.
+    - filter_schools: A list of school names used for filtering.
+    - header_row: The index of the header row in the Excel file (default is 8).
 
     Returns:
     - list[dict]: The filtered data in a list of dictionaries.
     """
     try:
-        url = data_source.avgang_info[max(data_source.years)]  # Get the latest year's URL
-        sheet_name = data_source.sheet_name
-        column_name = data_source.column_name
-        filter_schools = data_source.school_name_mapping.keys()  # Use mapped school names
-        
         # Download the file
         response = requests.get(url)
         response.raise_for_status()
@@ -245,7 +243,7 @@ def download_and_extract_filtered_data(data_source):
             print(f"Sheet '{sheet_name}' not found in the Excel file.")
             return []
         
-        df = excel_data.parse(sheet_name, header=8)  # Using the default header row index 8
+        df = excel_data.parse(sheet_name, header=header_row)  # Using the provided header_row
 
         # Check if the required columns exist
         if "Skola" not in df.columns or column_name not in df.columns:
