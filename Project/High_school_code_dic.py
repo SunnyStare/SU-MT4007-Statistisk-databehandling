@@ -41,17 +41,9 @@ class DataSourceAndParameters:
         2023: "https://siris.skolverket.se/siris/reports/export_api/runexport/?pFormat=xls&pExportID=88&pAr=2023&pLan=&pKommun=&pHmantyp=&pUttag=null&pToken=29A296189217EE63E06311BA650A8DC5&pFlikar=1&pVerkform=21",
         2024: "https://siris.skolverket.se/siris/reports/export_api/runexport/?pFormat=xls&pExportID=88&pAr=2024&pLan=&pKommun=&pHmantyp=&pUttag=null&pToken=29A296189217EE63E06311BA650A8DC5&pFlikar=1&pVerkform=21",
     }
-
-    @classmethod
-    def get_avgang_parameters(cls):
-        """
-        Returns relevant parameters for the graduation dataset.
-        """
-        return {
-            "sheet_name": "Naturvetenskapsprogrammet",
-            "column_name": "GBP för elever med examen"
-        }
-
+    sheet_name = "Naturvetenskapsprogrammet",
+    column_name = "GBP för elever med examen"
+                
 data = DataSourceAndParameters()
 
 ##############################################################################################
