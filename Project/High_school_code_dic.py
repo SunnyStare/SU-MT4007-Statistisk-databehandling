@@ -390,8 +390,13 @@ def data_processing():
     # Manually define a name mapping table
     name_trans_listofdict = name_trans(median_avg_listofdict)
 
-    # # Read in GBP för elever med examen for the relevant schools from 2020 to 2024
-    gbp_listofdict = process_gbp_data(avgang_info, sheet_name, column_name, filter_schools)
+    # Read in GBP för elever med examen for the relevant schools from 2020 to 2024
+    gbp_listofdict = process_gbp_data(
+        url_dict = data.avgang_info,        # Call the avgang_info from the class instance
+        sheet_name = data.sheet_name,       # Call the sheet_name from the class instance
+        column_name = data.column_name,     # Call the column_name from the class instance
+        filter_schools = name_trans(median_avg_listofdict)  # Filter schools with the name mapping
+    )
 
     # Calculate the average GBP för elever med examen for the relevant schools from 2020 to 2024
     avg_gbp_listofdict = calculate_avg_gbp(gbp_listofdict)
