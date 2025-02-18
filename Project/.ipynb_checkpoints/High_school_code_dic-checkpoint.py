@@ -384,15 +384,15 @@ def data_processing():
     """
     
     # Read in admission data
-    antagning_listofdict = read_in_data_antagningsdel(data_source.antagning_info, data_source.antagning_dir)
+    antagning_listofdict = read_in_data_antagningsdel(data.antagning_info, data.antagning_dir)
     
     # Apply filtering based on class parameters
     filtered_antagning_listofdict = filter_data(
         antagning_listofdict, 
-        data_source.years, 
-        data_source.kommuner, 
-        data_source.program_keyword, 
-        data_source.excluded_keywords
+        data.years, 
+        data.kommuner, 
+        data.program_keyword, 
+        data.excluded_keywords
     )
     
     # Calculate the 5-year median and admission averages
