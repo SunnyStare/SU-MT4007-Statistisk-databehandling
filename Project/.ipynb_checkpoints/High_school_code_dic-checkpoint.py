@@ -35,11 +35,11 @@ class DataSourceAndParameters:
 
     # URLs for graduation statistics
     avgang_info = {
-        2020: r"C:\Users\User-Dator\Documents\SU-MT4007\Project\avgångsstatistik\Gymnasieskola - Avgångselever, nationella program (fr.o.m. 2013_14) 2020 Skolenhet",
-        2021: r"C:\Users\User-Dator\Documents\SU-MT4007\Project\avgångsstatistik\Gymnasieskola - Avgångselever, nationella program (fr.o.m. 2013_14) 2021 Skolenhet",
-        2022: r"C:\Users\User-Dator\Documents\SU-MT4007\Project\avgångsstatistik\Gymnasieskola - Avgångselever, nationella program (fr.o.m. 2013_14) 2022 Skolenhet",
-        2023: r"C:\Users\User-Dator\Documents\SU-MT4007\Project\avgångsstatistik\Gymnasieskola - Avgångselever, nationella program (fr.o.m. 2013_14) 2023 Skolenhet",
-        2024: r"C:\Users\User-Dator\Documents\SU-MT4007\Project\avgångsstatistik\Gymnasieskola - Avgångselever, nationella program (fr.o.m. 2013_14) 2024 Skolenhet",
+        2020: r"C:\Users\User-Dator\Documents\SU-MT4007\Project\avgångsstatistik\Gymnasieskola - Avgångselever, nationella program (fr.o.m. 2013_14) 2020 Skolenhet.xlsx",
+        2021: r"C:\Users\User-Dator\Documents\SU-MT4007\Project\avgångsstatistik\Gymnasieskola - Avgångselever, nationella program (fr.o.m. 2013_14) 2021 Skolenhet.xlsx",
+        2022: r"C:\Users\User-Dator\Documents\SU-MT4007\Project\avgångsstatistik\Gymnasieskola - Avgångselever, nationella program (fr.o.m. 2013_14) 2022 Skolenhet.xlsx",
+        2023: r"C:\Users\User-Dator\Documents\SU-MT4007\Project\avgångsstatistik\Gymnasieskola - Avgångselever, nationella program (fr.o.m. 2013_14) 2023 Skolenhet.xlsx",
+        2024: r"C:\Users\User-Dator\Documents\SU-MT4007\Project\avgångsstatistik\Gymnasieskola - Avgångselever, nationella program (fr.o.m. 2013_14) 2024 Skolenhet.xlsx",
     }
     sheet_name = "Naturvetenskapsprogrammet",
     column_name = "GBP för elever med examen"
