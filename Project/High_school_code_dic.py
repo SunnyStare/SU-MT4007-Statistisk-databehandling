@@ -35,11 +35,11 @@ class DataSourceAndParameters:
 
     # URLs for graduation statistics
     avgang_info = {
-        2020: "https://siris.skolverket.se/siris/reports/export_api/runexport/?pFormat=xls&pExportID=88&pAr=2020&pLan=&pKommun=&pHmantyp=&pUttag=null&pToken=29A296189217EE63E06311BA650A8DC5&pFlikar=1&pVerkform=21",
-        2021: "https://siris.skolverket.se/siris/reports/export_api/runexport/?pFormat=xls&pExportID=88&pAr=2021&pLan=&pKommun=&pHmantyp=&pUttag=null&pToken=29A296189217EE63E06311BA650A8DC5&pFlikar=1&pVerkform=21",
-        2022: "https://siris.skolverket.se/siris/reports/export_api/runexport/?pFormat=xls&pExportID=88&pAr=2022&pLan=&pKommun=&pHmantyp=&pUttag=null&pToken=29A296189217EE63E06311BA650A8DC5&pFlikar=1&pVerkform=21",
-        2023: "https://siris.skolverket.se/siris/reports/export_api/runexport/?pFormat=xls&pExportID=88&pAr=2023&pLan=&pKommun=&pHmantyp=&pUttag=null&pToken=29A296189217EE63E06311BA650A8DC5&pFlikar=1&pVerkform=21",
-        2024: "https://siris.skolverket.se/siris/reports/export_api/runexport/?pFormat=xls&pExportID=88&pAr=2024&pLan=&pKommun=&pHmantyp=&pUttag=null&pToken=29A296189217EE63E06311BA650A8DC5&pFlikar=1&pVerkform=21",
+        2020: r"C:\Users\User-Dator\Documents\SU-MT4007\Project\avgångsstatistik\Gymnasieskola - Avgångselever, nationella program (fr.o.m. 2013_14) 2020 Skolenhet",
+        2021: r"C:\Users\User-Dator\Documents\SU-MT4007\Project\avgångsstatistik\Gymnasieskola - Avgångselever, nationella program (fr.o.m. 2013_14) 2021 Skolenhet",
+        2022: r"C:\Users\User-Dator\Documents\SU-MT4007\Project\avgångsstatistik\Gymnasieskola - Avgångselever, nationella program (fr.o.m. 2013_14) 2022 Skolenhet",
+        2023: r"C:\Users\User-Dator\Documents\SU-MT4007\Project\avgångsstatistik\Gymnasieskola - Avgångselever, nationella program (fr.o.m. 2013_14) 2023 Skolenhet",
+        2024: r"C:\Users\User-Dator\Documents\SU-MT4007\Project\avgångsstatistik\Gymnasieskola - Avgångselever, nationella program (fr.o.m. 2013_14) 2024 Skolenhet",
     }
     sheet_name = "Naturvetenskapsprogrammet",
     column_name = "GBP för elever med examen"
