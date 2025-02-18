@@ -235,6 +235,133 @@ def name_trans():
 
 #####################################################################################################
 
+def download_and_extract_filtered_data(data_source):
+    
+    """
+    Download the Excel file and extract specific column data that meets the filter criteria.
+
+    Parameters:
+    - data_source: An instance of the DataSourceAndParameters class.
+
+    Returns:
+    - list[dict]: The filtered data in a list of dictionaries.
+    """
+    try:
+        url = data_source.avgang_info[max(data_source.years)]  # Get the latest year's URL
+        sheet_name = data_source.sheet_name
+        column_name = data_source.column_name
+        filter_schools = data_source.school_name_mapping.keys()  # Use mapped school names
+        
+        # Download the file
+        response = requests.get(url)
+        response.raise_for_status()
+
+        # Read in the Excel file
+        excel_data = pd.ExcelFile(BytesIO(response.content))
+
+        # Check if the sheet exists
+        if sheet_name not in excel_data.sheet_names:
+            print(f"Sheet '{sheet_name}' not found in the Excel file.")
+            return []
+        
+        df = excel_data.parse(sheet_name, header=8)  # Using the default header row index 8
+
+        # Check if the required columns exist
+        if "Skola" not in df.columns or column_name not in df.columns:
+            print(f"Required columns 'Skola' or '{column_name}' not found in sheet '{sheet_name}'.")
+            return []
+
+        # Clean the 'Skola' column by removing extra spaces
+        df["Skola"] = df["Skola"].str.strip()
+
+        # Filter the dataframe based on the 'Skola' column and filter_schools list
+        filtered_df = df[df["Skola"].isin(filter_schools)][["Skola", column_name]]
+
+        # If no data matched the filter
+        if filtered_df.empty:
+            print("No matching schools found in the dataset.")
+            return []
+        
+        # Convert DataFrame to a list of dictionaries
+        filtered_listofdict = filtered_df.to_dict(orient="records")
+        
+        return filtered_listofdict
+
+    except requests.exceptions.RequestException as e:
+        print(f"Error downloading the file: {e}")
+        return []
+    except Exception as e:
+        print(f"Error processing the Excel file: {e}")
+        return []
+        
+#######################################################################################################
+
+def process_gbp_data(avgang_info, sheet_name, column_name, filter_schools):
+    """
+    Process and extract GBP data for multiple years.
+
+    Parameters:
+    - avgang_info: Dictionary mapping years to URLs.
+    - sheet_name: The name of the sheet to extract data from.
+    - column_name: The column containing GBP values.
+    - filter_schools: A list of school names used for filtering.
+
+    Returns:
+    - list[dict]: A list of dictionaries containing the filtered GBP data.
+    """
+    gbp_data_list = []  
+
+    for year, url in avgang_info.items():
+        try:
+            print(f"Processing data for year {year}...")
+
+            
+            filtered_data = download_and_extract_filtered_data(
+                url=url,
+                sheet_name=sheet_name,
+                column_name=column_name,
+                filter_schools=filter_schools,
+                header_row=8
+            )
+
+            if filtered_data:
+               
+                for entry in filtered_data:
+                    entry["Year"] = year 
+                gbp_data_list.extend(filtered_data)  
+            else:
+                print(f"No matching data found for year {year}.")
+
+        except Exception as e:
+            print(f"Error processing data for year {year}: {e}")
+
+    return gbp_data_list  
+
+##################################################################################################
+
+def calculate_avg_gbp(gbp_listofdict):
+    """
+    Calculate the average GBP for each school from 2020 to 2024.
+
+    Parameters:
+    - gbp_listofdict: List of dictionaries containing GBP data with columns ["Skola", "GBP för elever med examen", "Year"]
+
+    Returns:
+    - list[dict]: A list of dictionaries with average GBP values per school.
+    """
+    if not gbp_listofdict:
+        print("No GBP data available.")
+        return []
+
+    df_GBP = pd.DataFrame(gbp_listofdict)
+
+    avg_df_GBP = df_GBP.groupby("Skola")["GBP för elever med examen"].mean().reset_index()
+
+    avg_df_GBP.rename(columns={"GBP för elever med examen": "Average GBP (2020-2024)"}, inplace=True)
+
+    avg_gbp_listofdict = avg_df_GBP.to_dict(orient="records")
+
+    return avg_gbp_listofdict
 
 
 #####################################################################################################
@@ -273,14 +400,19 @@ def data_processing(data_source):
 
     # Manually define a name mapping table
     name_trans_listofdict = name_trans(median_avg_listofdict)
+
+    # # Read in GBP för elever med examen for the relevant schools from 2020 to 2024
+    gbp_listofdict = process_gbp_data(avgang_info, sheet_name, column_name, filter_schools)
+
+    # Calculate the average GBP för elever med examen for the relevant schools from 2020 to 2024
+    avg_gbp_listofdict = calculate_avg_gbp(gbp_listofdict)
     
-    return median_avg_listofdict
+    return avg_gbp_listofdict
 
    
 
     
-    # Read in GBP för elever med examen for the relevant schools from 2020 to 2024
-
+    
 
 
 
